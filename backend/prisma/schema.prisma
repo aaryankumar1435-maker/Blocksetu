@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Department {
+  ENG
+  SNT
+  TRD
+}
+
+enum Line {
+  UP
+  DN
+  BOTH
+}
+
+enum TaskStatus {
+  scheduled
+  unscheduled
+  quarantined
+}
+
+enum TriggerSeverity {
+  info
+  warning
+  critical
+}
+
+model BlockSection {
+  id              String @id
+  name            String
+  fromStation     String
+  toStation       String
+  chainageStartKm Float
+  chainageEndKm   Float
+  division        String
+  maxWindowMin    Int
+
+  defects Defect[]
+  tasks   Task[]
+  blocks  ScheduledBlock[]
+}
+
+model Defect {
+  id            String     @id
+  department    Department
+  sectionId     String
+  section       BlockSection @relation(fields: [sectionId], references: [id])
+  chainageKm    Float
+  line          Line
+  category      String
+  riskScore     Int
+  detectedDate  DateTime
+  description   String
+  oheMastNumber String?
+
+  @@index([sectionId])
+}
+
+// Explains SHAP-style risk factor contributions shown on a task's detail drawer.
+model ShapFactor {
+  id           Int    @id @default(autoincrement())
+  taskId       String
+  task         Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  name         String
+  contribution Float
+  value        String
+
+  @@index([taskId])
+}
+
+model Task {
+  id                String     @id
+  department        Department
+  sectionId         String
+  section           BlockSection @relation(fields: [sectionId], references: [id])
+  chainageKm        Float
+  line              Line
+  title             String
+  description       String
+  riskScore         Int
+  p80DurationMin    Int
+  status            TaskStatus @default(unscheduled)
+  defectIds         String[]
+  bindingConstraint String?
+  oheMastNumber     String?
+  statutory         Boolean
+  dueDate           DateTime?
+  shapFactors       ShapFactor[]
+  // Raw model inputs (feature slug -> value) the ML service scored this task on.
+  features          Json?
+  // SHAP base value: riskBaseValue + sum(shapFactors.contribution) = riskScore.
+  // Null when the score came from the heuristic fallback, not the model.
+  riskBaseValue     Float?
+  // How many consecutive resolves have failed to place this task — drives auto-quarantine.
+  replanFailures    Int        @default(0)
+
+  blockId String?
+  block   ScheduledBlock? @relation(fields: [blockId], references: [id])
+
+  @@index([sectionId])
+  @@index([status])
+  @@index([blockId])
+}
+
+model ScheduledBlock {
+  id          String       @id
+  sectionId   String
+  section     BlockSection @relation(fields: [sectionId], references: [id])
+  startTime   DateTime
+  endTime     DateTime
+  departments Department[]
+  // Planner-pinned blocks are held fixed by the solver on every re-resolve.
+  pinned      Boolean      @default(false)
+  tasks       Task[]
+
+  @@index([sectionId])
+}
+
+model PlanVersion {
+  id               String   @id
+  versionNumber    Int      @unique
+  createdAt        DateTime @default(now())
+  author           String
+  summary          String
+  safetyWeight     Float
+  diffFromPrevious String[]
+}
+
+model RePlanTrigger {
+  id        String           @id
+  timestamp DateTime         @default(now())
+  reason    String
+  severity  TriggerSeverity
+}
+
+model Comment {
+  id        String   @id
+  author    String
+  timestamp DateTime @default(now())
+  text      String
+}
+
+// Singleton row (id always 1) holding the working plan's review state —
+// mirrors the frontend's PlanContext approved/published/safetyWeight state.
+model PlanState {
+  id           Int     @id @default(1)
+  safetyWeight Float   @default(0.6)
+  approved     Boolean @default(false)
+  published    Boolean @default(false)
+}

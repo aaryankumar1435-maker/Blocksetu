@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-0: #eef2f7;
+  --color-bg-1: #ffffff;
+  --color-bg-2: #f1f5f9;
+  --color-bg-3: #e2e8f0;
+  --color-border: #dde4ee;
+  --color-border-strong: #c3ccd9;
+  --color-text: #33404f;
+  --color-text-dim: #66758a;
+  --color-text-faint: #94a3b8;
+  --color-text-bright: #0f2942;
+
+  --color-eng: #2b6cb0;
+  --color-eng-dim: #dce8f6;
+  --color-snt: #b3760f;
+  --color-snt-dim: #f6ecd6;
+  --color-trd: #1f8f68;
+  --color-trd-dim: #d9f0e8;
+  --color-multi: #7c4fc4;
+  --color-multi-dim: #ece3f9;
+
+  --color-risk-low: #1f9d63;
+  --color-risk-med: #c1810f;
+  --color-risk-high: #d9603f;
+  --color-risk-crit: #c8265a;
+
+  --color-accent: #0b5cab;
+  --color-positive: #1f9d63;
+  --color-negative: #d9603f;
+
+  --color-brand: #0b5cab;
+  --color-brand-dark: #06345f;
+  --color-saffron: #f5820e;
+
+  --font-sans: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-mono: "Cascadia Code", ui-monospace, Consolas, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #eef2f7;
+  color: #33404f;
+  font: 13px/1.45 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #eef2f7;
+}
+::-webkit-scrollbar-thumb {
+  background: #c3ccd9;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8b3c4;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+button {
+  font-family: inherit;
+}

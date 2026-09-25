@@ -1,0 +1,18 @@
+{
+  "name": "blocksetu",
+  "private": true,
+  "description": "BlockSetu — railway block working plan dashboard (frontend + API + ML risk model)",
+  "scripts": {
+    "setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup.ps1",
+    "predev": "docker compose -f backend/docker-compose.yml up -d postgres",
+    "dev": "concurrently -k -n ml,api,web -c magenta,cyan,green \"npm:dev:ml\" \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:ml": "cd ml && .venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000",
+    "dev:api": "npm --prefix backend run dev",
+    "dev:web": "npm --prefix frontend run dev",
+    "seed": "npm --prefix backend run seed",
+    "train": "cd ml && .venv\\Scripts\\python.exe -m app.train"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,19 @@
+# Explicit name: otherwise Compose derives it from the folder ("backend"),
+# which collides with unrelated projects that also live in a "backend" folder.
+name: blocksetu
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: blocksetu
+      POSTGRES_PASSWORD: blocksetu
+      POSTGRES_DB: blocksetu
+    ports:
+      - "5434:5432"
+    volumes:
+      - blocksetu_pgdata:/var/lib/postgresql/data
+
+volumes:
+  blocksetu_pgdata:
